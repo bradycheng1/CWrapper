@@ -24,30 +24,38 @@
     <RootNamespace>UniLibEquityCoreCLI</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
-  <!-- Disable default CLR support BEFORE importing default props
-       so that v142's /clr:netcore is not automatically applied.
-       Also set ExceptionHandling=Async BEFORE default props so /EHa is
-       emitted BEFORE any /EHs can appear, avoiding the incompatibility. -->
+
+  <!--
+    Set ExceptionHandling=Async BEFORE importing Microsoft.Cpp.Default.props.
+    This injects /EHa into the compiler command line BEFORE the toolset
+    can inject /EHs, avoiding the "/EHs and /clr are incompatible" error.
+  -->
   <PropertyGroup>
-    <CLRSupport>false</CLRSupport>
     <ExceptionHandling>Async</ExceptionHandling>
   </PropertyGroup>
+
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
+    <!-- CLRSupport=true generates /clr (not /clr:netcore) for .NET Framework -->
+    <CLRSupport>true</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
+    <CLRSupport>true</CLRSupport>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
   </PropertyGroup>
+
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -57,7 +65,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <!-- Output directories: one level up from UniLibEquityCoreCLI/ = src/ -->
   <PropertyGroup>
     <OutDir>$(ProjectDir)..\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\obj\$(Platform)\$(Configuration)\</IntDir>
@@ -67,19 +74,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <!-- Include path: src/ (parent of UniLibEquityCoreCLI/) -->
       <AdditionalIncludeDirectories>$(ProjectDir)..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <!-- Force /clr for ALL compilation units (including auto-generated assembly attributes).
-           ForceConformanceInForEachHeaderFile is required for this to work. -->
-      <ForceConformanceInForEachHeaderFile>true</ForceConformanceInForEachHeaderFile>
-      <AdditionalOptions>/EHs- /clr %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <!-- Link against the import library -->
       <AdditionalDependencies>UniLibEquityCore64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <!-- Library search paths: src/ (where .lib lives) AND bin/ (runtime .dll) -->
       <AdditionalLibraryDirectories>$(ProjectDir)..\;$(ProjectDir)..\bin\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)UniLibEquityCoreCLI.lib</ImportLibrary>
@@ -107,7 +107,6 @@
     </ClCompile>
     <ClCompile Include="UniLibEquityCoreCLI.cpp" />
   </ItemGroup>
-  <!-- Include ICalculationContext.h in build and copy to output -->
   <ItemGroup>
     <None Include="..\ICalculationContext.h">
       <DeploymentContent>true</DeploymentContent>
