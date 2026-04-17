@@ -20,40 +20,43 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8B3E4D2F-9A1B-4C3D-8E5F-1A2B3C4D5E6F}</ProjectGuid>
+    <Keyword>ManagedCProj</Keyword>
     <RootNamespace>UniLibEquityCoreCLI</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
 
   <!--
-    Minimal vcxproj for C++/CLI on VS2019 v142.
+    KEY INSIGHT: <Keyword>ManagedCProj</Keyword> is what signals v142 that this is a
+    managed project. Without it, no managed code features are activated regardless
+    of other settings.
 
-    Key insight: v142's CLRSupport=true injects /clr:pure (NOT /clr), and
-    /clr:pure + /EHs is the "incompatible" combination that produces D9025.
-    Solution: set CLRSupport=false (no auto-injection) + manually add /clr via
-    AdditionalOptions.  The compiler evaluates flags left-to-right; placing
-    /clr LAST on the command line makes it the effective choice.
-
-    Command line order will be:
-      cl.exe ... /EHs ... /clr
-    and /clr (appearing last) is what the compiler acts on.
+    We disable CLRSupport BEFORE importing default props to prevent v142 from
+    auto-injecting /clr:netcore (which is incompatible with .NET Framework).
+    Then we force /clr explicitly via AdditionalOptions AFTER /EHs-.
   -->
+  <PropertyGroup>
+    <CLRSupport>false</CLRSupport>
+  </PropertyGroup>
+
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CLRSupport>false</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <ExceptionHandling>Async</ExceptionHandling>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CLRSupport>false</CLRSupport>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <ExceptionHandling>Async</ExceptionHandling>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -76,8 +79,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <!-- /EHs- disables synchronous exception handling, /clr appended LAST so it takes precedence.
-           This is the correct combination: /clr requires /EHa (async) or /EHs- (no exception handling). -->
+      <!-- /clr MUST appear after /EHs- on the command line so it wins. -->
       <AdditionalOptions>%(AdditionalOptions) /EHs- /clr</AdditionalOptions>
     </ClCompile>
     <Link>
