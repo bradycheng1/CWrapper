@@ -4,16 +4,20 @@
 
 ```
 CWrapper/
-├── UniLibEquityCore64.dll              # Native C++ DLL (financial calculation engine)
-├── UniLibEquityCore64.lib              # Import library
-├── ICalculationContext.h              # C++ header
-├── UniLibEquityCoreCLI/                # C++/CLI wrapper
-│   ├── UniLibEquityCoreCLI.vcxproj    # VS project file (double-click to open)
-│   ├── UniLibEquityCoreCLI.h          # Declarations
-│   ├── UniLibEquityCoreCLI.cpp        # Implementation
-│   ├── pch.h                          # Precompiled header
-│   └── pch.cpp
-└── README.md
+├── .workbuddy/               # Local config (NOT synced to git)
+└── src/                      # Git-tracked source code
+    ├── UniLibEquityCore64.dll              # Native C++ DLL
+    ├── UniLibEquityCore64.lib             # Import library
+    ├── ICalculationContext.h              # C++ header
+    ├── UniLibEquityCoreCLI/               # C++/CLI wrapper
+    │   ├── UniLibEquityCoreCLI.vcxproj   # VS project file
+    │   ├── UniLibEquityCoreCLI.h         # Declarations
+    │   ├── UniLibEquityCoreCLI.cpp       # Implementation
+    │   ├── pch.h / pch.cpp
+    │   └── (other C++/CLI files)
+    ├── Test/                             # Local test project (NOT synced)
+    ├── README.md
+    └── .gitignore
 ```
 
 ---
