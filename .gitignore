@@ -1,3 +1,7 @@
+# Local test projects (not for git)
+Test/
+TestResults/
+
 # Build outputs
 bin/
 obj/
