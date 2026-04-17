@@ -1,7 +1,9 @@
 #include "pch.h"
 #include "UniLibEquityCoreCLI.h"
 #include <msclr/marshal.h>
-#include <msclr/marshal_cppstd.h>
+#include <string>
+#include <map>
+#include <vector>
 
 namespace UniLibEquityCLI
 {
@@ -9,77 +11,34 @@ namespace UniLibEquityCLI
     using namespace System::Runtime::InteropServices;
 
     // ========================================================================
-    // Helpers
+    // Helper: marshal System::String^ -> std::string
     // ========================================================================
-    static std::string MarshalString(String^ s)
+    static std::string ToStdString(String^ s)
     {
         return msclr::interop::marshal_as<std::string>(s);
     }
 
-    static std::map<std::string, std::string> MarshalStringDict(
-        Collections::Generic::Dictionary<String^, String^>^ d)
-    {
-        std::map<std::string, std::string> m;
-        if (d != nullptr)
-        {
-            for each (auto kvp in d)
-                m[MarshalString(kvp.Key)] = MarshalString(kvp.Value);
-        }
-        return m;
-    }
-
-    static std::vector<double> MarshalDoubleList(Collections::Generic::List<double>^ lst)
-    {
-        std::vector<double> v;
-        if (lst != nullptr)
-            for each (double d in lst)
-                v.push_back(d);
-        return v;
-    }
-
-    static std::vector<long> MarshalLongList(Collections::Generic::List<long>^ lst)
-    {
-        std::vector<long> v;
-        if (lst != nullptr)
-            for each (long d in lst)
-                v.push_back(d);
-        return v;
-    }
-
-    static std::vector<std::string> MarshalStringList(Collections::Generic::List<String^>^ lst)
-    {
-        std::vector<std::string> v;
-        if (lst != nullptr)
-            for each (String^ s in lst)
-                v.push_back(MarshalString(s));
-        return v;
-    }
-
     // ========================================================================
-    // Functions - implementation delegates to extern "C" native calls
+    // Functions - implementation
     // ========================================================================
 
     int Functions::IsWorkingDay(String^ calendar, int date, int useOracleDates)
     {
-        std::string cpp_cal = MarshalString(calendar);
-        return ::uxIsWorkingDay(cpp_cal.c_str(), date, useOracleDates);
+        return ::uxIsWorkingDay(ToStdString(calendar).c_str(), date, useOracleDates);
     }
 
     int Functions::AddPeriod(String^ calendar, int startDate, String^ period,
                              int dayAdjust, int useOracleDates)
     {
-        std::string cpp_cal    = MarshalString(calendar);
-        std::string cpp_period = MarshalString(period);
-        return ::uxAddPeriod(cpp_cal.c_str(), startDate,
-                              cpp_period.c_str(), dayAdjust, useOracleDates);
+        return ::uxAddPeriod(ToStdString(calendar).c_str(), startDate,
+                              ToStdString(period).c_str(), dayAdjust, useOracleDates);
     }
 
     int Functions::GetMatchingBusinessday(String^ calendar, int startDate,
                                           int useFollowing, int useOracleDates)
     {
-        std::string cpp_cal = MarshalString(calendar);
-        return ::uxGetMatchingBusinessday(cpp_cal.c_str(), startDate,
-                                          useFollowing, useOracleDates);
+        return ::uxGetMatchingBusinessday(ToStdString(calendar).c_str(),
+                                          startDate, useFollowing, useOracleDates);
     }
 
     double Functions::YearFraction(int source, int start, int end, int useOracleDates)
@@ -94,12 +53,11 @@ namespace UniLibEquityCLI
 
     int Functions::OpenDayCount(String^ calendar, int start, int end, int useOracleDates)
     {
-        std::string cpp_cal = MarshalString(calendar);
-        return ::uxOpenDayCount(cpp_cal.c_str(), start, end, useOracleDates);
+        return ::uxOpenDayCount(ToStdString(calendar).c_str(), start, end, useOracleDates);
     }
 
     // ========================================================================
-    // CalculationContext - stub
+    // CalculationContext - stub implementation
     // ========================================================================
 
     CalculationContext::CalculationContext(void* handle)
@@ -127,47 +85,46 @@ namespace UniLibEquityCLI
         [Out] String^% error)
     {
         error = "CalculationContext::Create is not yet implemented. "
-                "The Functions class is fully functional. "
-                "To implement CalculationContext, build a native C-wrapper DLL.";
+                "The Functions class is fully functional.";
         return nullptr;
     }
 
     double CalculationContext::GetSpot(String^, [Out] String^% error)
     {
-        error = "CalculationContext not available - stub implementation.";
+        error = "CalculationContext not available - stub.";
         return 0.0;
     }
 
     double CalculationContext::GetForwardCompoundFactor(
         String^, long, long, double, [Out] String^% error)
     {
-        error = "CalculationContext not available - stub implementation.";
+        error = "CalculationContext not available - stub.";
         return 0.0;
     }
 
     double CalculationContext::GetVolatility(
         String^, long, long, double, int, bool, [Out] String^% error)
     {
-        error = "CalculationContext not available - stub implementation.";
+        error = "CalculationContext not available - stub.";
         return 0.0;
     }
 
     double CalculationContext::GetRepoMargin(String^, long, long, [Out] String^% error)
     {
-        error = "CalculationContext not available - stub implementation.";
+        error = "CalculationContext not available - stub.";
         return 0.0;
     }
 
     double CalculationContext::GetForwardPrice(String^, long, [Out] String^% error)
     {
-        error = "CalculationContext not available - stub implementation.";
+        error = "CalculationContext not available - stub.";
         return 0.0;
     }
 
-    void CalculationContext::Dispose()
+    // C++/CLI destructor (maps to C# finalizer via ~)
+    CalculationContext::~CalculationContext()
     {
         Dispose(true);
-        GC::SuppressFinalize(this);
     }
 
     void CalculationContext::Dispose(bool)
@@ -178,6 +135,13 @@ namespace UniLibEquityCLI
         }
     }
 
+    void CalculationContext::Dispose()
+    {
+        Dispose(true);
+        GC::SuppressFinalize(this);
+    }
+
+    // C++/CLI finalizer (maps to .NET finalizer via !)
     CalculationContext::!CalculationContext()
     {
         m_nativeHandle = nullptr;

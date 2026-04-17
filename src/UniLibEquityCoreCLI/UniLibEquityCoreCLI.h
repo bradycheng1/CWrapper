@@ -1,12 +1,9 @@
 #pragma once
 
 #include <windows.h>
-#include <string>
-#include <vcclr.h>
 
 // ---------------------------------------------------------------------------
 // extern "C" declarations for the native DLL.
-// The DLL must be in the same directory as the output DLL at runtime.
 // ---------------------------------------------------------------------------
 extern "C"
 {
@@ -21,7 +18,6 @@ extern "C"
 namespace UniLibEquityCLI
 {
     using namespace System;
-    using namespace System::Runtime::InteropServices;
 
     // ========================================================================
     // Functions - static helpers wrapping the native DLL calls
@@ -38,7 +34,7 @@ namespace UniLibEquityCLI
     };
 
     // ========================================================================
-    // CalculationContext - IDisposable wrapper (currently a stub)
+    // CalculationContext - IDisposable wrapper (stub only)
     // ========================================================================
     public ref class CalculationContext : public IDisposable
     {
