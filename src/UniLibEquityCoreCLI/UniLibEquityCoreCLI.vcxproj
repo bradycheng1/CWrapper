@@ -26,13 +26,9 @@
   </PropertyGroup>
 
   <!--
-    KEY INSIGHT: <Keyword>ManagedCProj</Keyword> is what signals v142 that this is a
-    managed project. Without it, no managed code features are activated regardless
-    of other settings.
-
-    We disable CLRSupport BEFORE importing default props to prevent v142 from
-    auto-injecting /clr:netcore (which is incompatible with .NET Framework).
-    Then we force /clr explicitly via AdditionalOptions AFTER /EHs-.
+    Strategy: rely on Keyword=ManagedCProj for managed mode + BeforeTargets to
+    append /clr at the very END of the cl.exe command line, AFTER all
+    toolset-injected flags. This guarantees /clr is never overridden.
   -->
   <PropertyGroup>
     <CLRSupport>false</CLRSupport>
@@ -46,7 +42,6 @@
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <ExceptionHandling>Async</ExceptionHandling>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
@@ -56,7 +51,6 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <ExceptionHandling>Async</ExceptionHandling>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -79,8 +73,8 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <!-- /clr MUST appear after /EHs- on the command line so it wins. -->
-      <AdditionalOptions>%(AdditionalOptions) /EHs- /clr</AdditionalOptions>
+      <!-- /EHs- disables synchronous exception handling (incompatible with /clr) -->
+      <AdditionalOptions>/EHs- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>UniLibEquityCore64.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -122,6 +116,20 @@
     </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+
+  <!--
+    Append /clr to AdditionalOptions for ALL ClCompile items, BEFORE ClCompile
+    runs. This runs after Microsoft.Cpp.targets evaluates ClCompile items but
+    before cl.exe is invoked, ensuring /clr appears LAST on the command line.
+  -->
+  <Target Name="AppendClrBeforeCompile" BeforeTargets="ClCompile">
+    <ItemGroup>
+      <ClCompile>
+        <AdditionalOptions>%(ClCompile.AdditionalOptions) /clr</AdditionalOptions>
+      </ClCompile>
+    </ItemGroup>
+  </Target>
+
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
