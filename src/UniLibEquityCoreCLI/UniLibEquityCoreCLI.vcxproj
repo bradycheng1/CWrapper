@@ -1,26 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8B3E4D2F-9A1B-4C3D-8E5F-1A2B3C4D5E6F}</ProjectGuid>
+    <Keyword>ManagedCProj</Keyword>
+    <RootNamespace>UniLibEquityCoreCLI</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '16.0'" Label="Globals">
-    <PlatformToolset>v142</PlatformToolset>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PlatformToolset>v142</PlatformToolset>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CLRSupport>Pure</CLRSupport>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
     <CLRSupport>Pure</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
     <CLRSupport>Pure</CLRSupport>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -30,23 +48,30 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <!-- Output directories: one level up from UniLibEquityCoreCLI/ = src/ -->
   <PropertyGroup>
-    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\obj\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>UniLibEquityCoreCLI</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <!-- Include path: src/ (parent of UniLibEquityCoreCLI/) -->
       <AdditionalIncludeDirectories>$(ProjectDir)..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsManaged>Pure</CompileAsManaged>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
+      <!-- Link against the import library -->
       <AdditionalDependencies>UniLibEquityCore64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <!-- Library search path: src/bin/ -->
       <AdditionalLibraryDirectories>$(ProjectDir)..\bin\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)UniLibEquityCoreCLI.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
@@ -71,8 +96,13 @@
     </ClCompile>
     <ClCompile Include="UniLibEquityCoreCLI.cpp" />
   </ItemGroup>
+  <!-- Include ICalculationContext.h in build and copy to output -->
   <ItemGroup>
     <None Include="..\ICalculationContext.h">
+      <DeploymentContent>true</DeploymentContent>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\UniLibEquityCore64.dll">
       <DeploymentContent>true</DeploymentContent>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
