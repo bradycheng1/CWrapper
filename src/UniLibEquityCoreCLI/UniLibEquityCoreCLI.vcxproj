@@ -26,14 +26,15 @@
   </PropertyGroup>
 
   <!--
-    Strategy: rely on Keyword=ManagedCProj for managed mode + BeforeTargets to
-    append /clr at the very END of the cl.exe command line, AFTER all
-    toolset-injected flags. This guarantees /clr is never overridden.
-  -->
-  <PropertyGroup>
-    <CLRSupport>false</CLRSupport>
-  </PropertyGroup>
+    Standard C++/CLI setup for .NET Framework with VS2019 v142:
 
+    - Keyword=ManagedCProj: signals managed project to the toolset
+    - CLRSupport=true:      injects /clr (not /clr:pure or /clr:netcore)
+    - TargetFrameworkVersion: targets .NET Framework 4.7.2
+    - /EHs- in AdditionalOptions: disables synchronous exception handling
+      (required because /clr is incompatible with /EHs)
+      D9025 warnings about /EHs- overriding /EHs are expected and benign.
+  -->
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -42,6 +43,7 @@
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <CLRSupport>true</CLRSupport>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
@@ -51,6 +53,7 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <CLRSupport>true</CLRSupport>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -73,7 +76,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <!-- /EHs- disables synchronous exception handling (incompatible with /clr) -->
+      <!-- /EHs- disables /EHs which is incompatible with /clr -->
       <AdditionalOptions>/EHs- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -116,20 +119,6 @@
     </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-
-  <!--
-    Append /clr to AdditionalOptions for ALL ClCompile items, BEFORE ClCompile
-    runs. This runs after Microsoft.Cpp.targets evaluates ClCompile items but
-    before cl.exe is invoked, ensuring /clr appears LAST on the command line.
-  -->
-  <Target Name="AppendClrBeforeCompile" BeforeTargets="ClCompile">
-    <ItemGroup>
-      <ClCompile>
-        <AdditionalOptions>%(ClCompile.AdditionalOptions) /clr</AdditionalOptions>
-      </ClCompile>
-    </ItemGroup>
-  </Target>
-
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
