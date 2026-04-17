@@ -1,48 +1,49 @@
-# CWrapper - UniLibEquityCore64 C++/CLI 包装层
+# CWrapper - UniLibEquityCore64 C++/CLI Wrapper
 
-## 项目结构
+## Project Structure
 
 ```
 CWrapper/
-├── UniLibEquityCore64.dll              # 原生 C++ DLL（金融计算引擎）
-├── UniLibEquityCore64.lib              # 导入库
-├── ICalculationContext.h               # C++ 头文件
-├── UniLibEquityCoreCLI/                # C++/CLI 包装层（核心）
-│   ├── UniLibEquityCoreCLI.vcxproj     # VS 项目文件（双击打开）
-│   ├── UniLibEquityCoreCLI.h           # 声明
-│   ├── UniLibEquityCoreCLI.cpp         # 实现
-│   ├── pch.h                           # 预编译头
+├── UniLibEquityCore64.dll              # Native C++ DLL (financial calculation engine)
+├── UniLibEquityCore64.lib              # Import library
+├── ICalculationContext.h              # C++ header
+├── UniLibEquityCoreCLI/                # C++/CLI wrapper
+│   ├── UniLibEquityCoreCLI.vcxproj    # VS project file (double-click to open)
+│   ├── UniLibEquityCoreCLI.h          # Declarations
+│   ├── UniLibEquityCoreCLI.cpp        # Implementation
+│   ├── pch.h                          # Precompiled header
 │   └── pch.cpp
 └── README.md
 ```
 
 ---
 
-## 在 Windows 端（VS 2019 + C# 7.3）使用
+## Setup on Windows (VS 2019 + C# 7.3)
 
-### 第一步：拉取最新代码
+### Step 1: Pull the latest code
 
 ```bash
 git pull origin main
 ```
 
-确保本地的 `UniLibEquityCore64.dll` 和 `ICalculationContext.h` 都已存在。
+Make sure `UniLibEquityCore64.dll` and `ICalculationContext.h` are present.
 
-### 第二步：编译 C++/CLI 包装层
+### Step 2: Build the C++/CLI wrapper
 
-1. 用 **Visual Studio 2019** 打开 `UniLibEquityCoreCLI/UniLibEquityCoreCLI.vcxproj`
-2. 配置 **x64 Release**（或 x64 Debug）
-3. 把 `UniLibEquityCore64.dll` 复制到输出目录（`bin/x64/Release/`）
-4. **编译**（Ctrl+B）
-5. 编译成功后，输出文件为 `bin/x64/Release/UniLibEquityCoreCLI.dll`
+1. Open `UniLibEquityCoreCLI/UniLibEquityCoreCLI.vcxproj` in **Visual Studio 2019**
+2. Switch to **x64** + **Release** configuration
+3. Copy `UniLibEquityCore64.dll` to the output directory (`bin/x64/Release/`)
+4. **Build** (Ctrl+B)
+5. Output: `bin/x64/Release/UniLibEquityCoreCLI.dll`
 
-> **注意**：C++/CLI 项目需要 **原生 C++ 开发工具**支持。首次编译时，VS 会提示缺少组件，请勾选"使用 C++ 的桌面开发"工作负载。
+> **Note**: C++/CLI requires the "Desktop development with C++" workload in VS Installer.
 
-### 第三步：在 C# 项目中引用
+### Step 3: Reference from your C# project
 
-1. 在你的 C# Solution 中，**右键 → Add → Reference**
-2. 勾选 `UniLibEquityCoreCLI.dll`（在 `bin/x64/Release/` 下）
-3. **或者**在 `.csproj` 中添加：
+1. In your C# Solution: **Right-click → Add → Reference**
+2. Browse to `UniLibEquityCoreCLI.dll` in `bin/x64/Release/`
+
+Or add directly in `.csproj`:
 
 ```xml
 <ItemGroup>
@@ -52,55 +53,54 @@ git pull origin main
 </ItemGroup>
 ```
 
-4. 确保 `UniLibEquityCore64.dll` 在 **bin 输出目录**中（C# 程序运行时会加载它）
+3. Make sure `UniLibEquityCore64.dll` is in your C# project's **bin output directory**.
 
 ---
 
-## C# 调用示例
+## C# Usage Examples
 
 ```csharp
 using System;
 using System.Collections.Generic;
-using UniLibEquityCLI;  // ← 引用后即可使用
+using UniLibEquityCLI;
 
 class Program
 {
     static void Main(string[] args)
     {
         // =========================================================
-        // 示例一：纯函数调用（无需创建实例，直接用静态方法）
+        // Example 1: Static functions (no instance needed)
         // =========================================================
 
-        // 判断 2025-04-17 是否为上交所（SSE）工作日
+        // Is 2025-04-17 a working day on SSE?
         int result1 = Functions.IsWorkingDay("SSE", 20250417);
-        Console.WriteLine($"20250417 是否工作日: {result1}");  // 1=是, 0=否
+        Console.WriteLine($"20250417 is workday: {result1}");  // 1=yes, 0=no
 
-        // 计算 2025-04-17 + 1个月 后的日期
+        // 2025-04-17 + 1 month
         int result2 = Functions.AddPeriod("SSE", 20250417, "1M", 0);
-        Console.WriteLine($"20250417 + 1个月 = {result2}");
+        Console.WriteLine($"20250417 + 1M = {result2}");
 
-        // 获取下一个工作日
+        // Next business day
         int result3 = Functions.GetMatchingBusinessday("SSE", 20250417, useFollowing: true);
-        Console.WriteLine($"下一个工作日 = {result3}");
+        Console.WriteLine($"Next biz day = {result3}");
 
-        // 计算年分数（Actual/365 基准）
+        // Year fraction (Actual/365)
         double yf = Functions.YearFraction(source: 4, start: 20250101, end: 20251231);
-        Console.WriteLine($"年分数 = {yf:F6}");
+        Console.WriteLine($"Year fraction = {yf:F6}");
 
-        // 计算天数
+        // Day count
         int dc = Functions.DayCount(source: 4, start: 20250101, end: 20251231);
-        Console.WriteLine($"天数 = {dc}");
+        Console.WriteLine($"Day count = {dc}");
 
-        // 计算工作日天数
+        // Working days in year
         int odc = Functions.OpenDayCount("SSE", 20250101, 20251231);
-        Console.WriteLine($"2025年工作日天数 = {odc}");
+        Console.WriteLine($"SSE working days 2025 = {odc}");
 
 
         // =========================================================
-        // 示例二：ICalculationContext 实例（需要初始化 + Dispose）
+        // Example 2: CalculationContext (requires Init + Dispose)
         // =========================================================
 
-        // 准备基础数据
         long today = 20250417;
         string error;
 
@@ -122,7 +122,7 @@ class Program
             ["000001.SZ"] = "CNY"
         };
 
-        // 创建 Context（using 块自动 Dispose）
+        // Create Context (using block handles Dispose)
         using (var ctx = CalculationContext.Create(
             today: today,
             instrumentSpots: instrumentSpots,
@@ -146,18 +146,18 @@ class Program
         {
             if (ctx == null)
             {
-                Console.WriteLine($"Context 创建失败: {error}");
+                Console.WriteLine($"Context creation failed: {error}");
                 return;
             }
 
-            // 获取标的价格
+            // Get spot price
             double spot = ctx.GetSpot("600519.SH", out error);
             if (!string.IsNullOrEmpty(error))
-                Console.WriteLine($"GetSpot 错误: {error}");
+                Console.WriteLine($"GetSpot error: {error}");
             else
-                Console.WriteLine($"600519.SH 现货价 = {spot}");
+                Console.WriteLine($"600519.SH spot = {spot}");
 
-            // 获取远期复利因子
+            // Get forward compound factor
             double fwdFactor = ctx.GetForwardCompoundFactor(
                 yieldCurve: "CNY_YIELD",
                 date1: 20250417,
@@ -165,61 +165,61 @@ class Program
                 overrate: 0.0,
                 error: out error);
             if (!string.IsNullOrEmpty(error))
-                Console.WriteLine($"GetForwardCompoundFactor 错误: {error}");
+                Console.WriteLine($"GetForwardCompoundFactor error: {error}");
             else
-                Console.WriteLine($"远期复利因子 = {fwdFactor}");
-        }  // ← using 结束，Context 被正确释放
+                Console.WriteLine($"Forward compound factor = {fwdFactor}");
+        }
     }
 }
 ```
 
 ---
 
-## API 速查
+## API Quick Reference
 
-### Functions 类（静态方法）
+### Functions (Static Methods)
 
-| C# 方法 | C++ 函数 | 说明 |
-|---------|---------|------|
-| `Functions.IsWorkingDay(calendar, date)` | `uxIsWorkingDay` | 是否工作日 |
-| `Functions.AddPeriod(calendar, date, period, adjust)` | `uxAddPeriod` | 日期加减期间 |
-| `Functions.GetMatchingBusinessday(calendar, date, following)` | `uxGetMatchingBusinessday` | 取最近工作日 |
-| `Functions.YearFraction(source, start, end)` | `uxYearFraction` | 年分数 |
-| `Functions.DayCount(source, start, end)` | `uxDayCount` | 天数 |
-| `Functions.OpenDayCount(calendar, start, end)` | `uxOpenDayCount` | 工作日天数 |
+| C# Method | C++ Function | Description |
+|-----------|--------------|-------------|
+| `Functions.IsWorkingDay(calendar, date)` | `uxIsWorkingDay` | Check if workday |
+| `Functions.AddPeriod(calendar, date, period, adjust)` | `uxAddPeriod` | Add/subtract period |
+| `Functions.GetMatchingBusinessday(calendar, date, following)` | `uxGetMatchingBusinessday` | Nearest biz day |
+| `Functions.YearFraction(source, start, end)` | `uxYearFraction` | Year fraction |
+| `Functions.DayCount(source, start, end)` | `uxDayCount` | Day count |
+| `Functions.OpenDayCount(calendar, start, end)` | `uxOpenDayCount` | Working day count |
 
-### CalculationContext 类
+### CalculationContext
 
-| C# 方法 | 说明 |
-|---------|------|
-| `Create(...)` | 静态工厂方法，创建实例 |
-| `GetSpot(instrument, out error)` | 获取标的价格 |
-| `GetForwardCompoundFactor(yc, d1, d2, rate, out error)` | 远期复利因子 |
-| `GetVolatility(inst, d1, d2, strike, type, isCall, out error)` | 波动率 |
-| `GetRepoMargin(inst, d1, d2, out error)` | 回购保证金 |
-| `GetForwardPrice(inst, date, out error)` | 远期价格 |
-| `Dispose()` / `using` 块 | 释放 C++ 资源 |
+| C# Method | Description |
+|-----------|-------------|
+| `Create(...)` | Static factory |
+| `GetSpot(instrument, out error)` | Get spot price |
+| `GetForwardCompoundFactor(yc, d1, d2, rate, out error)` | Forward compound factor |
+| `GetVolatility(inst, d1, d2, strike, type, isCall, out error)` | Volatility |
+| `GetRepoMargin(inst, d1, d2, out error)` | Repo margin |
+| `GetForwardPrice(inst, date, out error)` | Forward price |
+| `Dispose()` / `using` block | Release C++ resources |
 
 ---
 
-## DayCount source 参数说明
+## DayCount source Parameter
 
-| source | 规则名称 | 说明 |
-|--------|---------|------|
+| source | Basis | Description |
+|--------|-------|-------------|
 | 0 | US | US (NASD) 30/360 |
 | 1 | EU | EU 30/360 |
 | 2 | 30/360 | 30/360 |
-| 3 | Actual/360 | 实际天数/360 |
-| 4 | Actual/365 | 实际天数/365（不闰年） |
-| 5 | Actual/Actual | 实际天数/实际年数 |
+| 3 | Actual/360 | Actual days / 360 |
+| 4 | Actual/365 | Actual days / 365 (no leap) |
+| 5 | Actual/Actual | Actual days / Actual years |
 
-## 常见问题
+## FAQ
 
-**Q: 编译报错 "unresolved external symbol"？**
-> 确保 `UniLibEquityCore64.lib` 在链接器附加依赖项中，且 `Additional Library Directories` 指向正确路径。
+**Q: "unresolved external symbol" at link time?**
+> Make sure `UniLibEquityCore64.lib` is in Linker → Additional Dependencies and `Additional Library Directories` points to the right path.
 
-**Q: 运行时报 "DLL not found"？**
-> 把 `UniLibEquityCore64.dll` 复制到 C# 项目的 bin 输出目录。
+**Q: "DLL not found" at runtime?**
+> Copy `UniLibEquityCore64.dll` to your C# project's bin output directory.
 
-**Q: C++/CLI 项目编译报错？**
-> 确认 VS 安装时勾选了"使用 C++ 的桌面开发"工作负载，且平台工具集为 v142（VS 2019）。
+**Q: C++/CLI build errors?**
+> Confirm VS Installer has "Desktop development with C++" workload, and Platform Toolset is v142 (VS 2019).
