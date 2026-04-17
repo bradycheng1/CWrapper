@@ -76,9 +76,9 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <!-- /clr appended LAST so it takes precedence over /EHs from the toolset.
-           D9025 warnings are expected and benign. -->
-      <AdditionalOptions>%(AdditionalOptions) /clr</AdditionalOptions>
+      <!-- /EHs- disables synchronous exception handling, /clr appended LAST so it takes precedence.
+           This is the correct combination: /clr requires /EHa (async) or /EHs- (no exception handling). -->
+      <AdditionalOptions>%(AdditionalOptions) /EHs- /clr</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>UniLibEquityCore64.lib;%(AdditionalDependencies)</AdditionalDependencies>
