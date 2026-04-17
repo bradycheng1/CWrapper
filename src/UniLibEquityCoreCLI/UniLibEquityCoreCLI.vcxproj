@@ -44,6 +44,7 @@
     <CLRSupport>true</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <ExceptionHandling>Async</ExceptionHandling>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
@@ -54,6 +55,7 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <ExceptionHandling>Async</ExceptionHandling>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
