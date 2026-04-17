@@ -24,21 +24,27 @@
     <RootNamespace>UniLibEquityCoreCLI</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
+  <!-- Disable default CLR support BEFORE importing default props
+       so that v142's /clr:netcore is not automatically applied.
+       We will force /clr explicitly via AdditionalOptions below. -->
+  <PropertyGroup>
+    <CLRSupport>false</CLRSupport>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CLRSupport>clr</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CLRSupport>clr</CLRSupport>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -61,15 +67,18 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <!-- Include path: src/ (parent of UniLibEquityCoreCLI/) -->
       <AdditionalIncludeDirectories>$(ProjectDir)..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <CompileAsManaged>NetCore</CompileAsManaged>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- Force /clr for ALL compilation units (including auto-generated assembly attributes).
+           ForceConformanceInForEachHeaderFile is required for this to work. -->
+      <ForceConformanceInForEachHeaderFile>true</ForceConformanceInForEachHeaderFile>
+      <AdditionalOptions>/clr %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <!-- Link against the import library -->
       <AdditionalDependencies>UniLibEquityCore64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <!-- Library search path: src/bin/ -->
-      <AdditionalLibraryDirectories>$(ProjectDir)..\bin\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <!-- Library search paths: src/ (where .lib lives) AND bin/ (runtime .dll) -->
+      <AdditionalLibraryDirectories>$(ProjectDir)..\;$(ProjectDir)..\bin\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)UniLibEquityCoreCLI.lib</ImportLibrary>
     </Link>
