@@ -26,9 +26,11 @@
   </PropertyGroup>
   <!-- Disable default CLR support BEFORE importing default props
        so that v142's /clr:netcore is not automatically applied.
-       We will force /clr explicitly via AdditionalOptions below. -->
+       Also set ExceptionHandling=Async BEFORE default props so /EHa is
+       emitted BEFORE any /EHs can appear, avoiding the incompatibility. -->
   <PropertyGroup>
     <CLRSupport>false</CLRSupport>
+    <ExceptionHandling>Async</ExceptionHandling>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -72,7 +74,7 @@
       <!-- Force /clr for ALL compilation units (including auto-generated assembly attributes).
            ForceConformanceInForEachHeaderFile is required for this to work. -->
       <ForceConformanceInForEachHeaderFile>true</ForceConformanceInForEachHeaderFile>
-      <AdditionalOptions>/clr /EHa %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/clr %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <!-- Link against the import library -->
