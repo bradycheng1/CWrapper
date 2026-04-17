@@ -1,0 +1,33 @@
+# Local config and memory (never for git)
+.workbuddy/
+
+# Local test projects (not for git)
+Test/
+TestResults/
+
+# Build outputs
+bin/
+obj/
+Debug/
+Release/
+x64/
+Win32/
+
+# Visual Studio
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.vcxproj.user
+
+# Rider / CLion
+.idea/
+*.cmake/
+
+# NuGet
+packages/
+*.nupkg
+
+# Logs
+*.log
