@@ -72,7 +72,7 @@
       <!-- Force /clr for ALL compilation units (including auto-generated assembly attributes).
            ForceConformanceInForEachHeaderFile is required for this to work. -->
       <ForceConformanceInForEachHeaderFile>true</ForceConformanceInForEachHeaderFile>
-      <AdditionalOptions>/clr %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/clr /EHa %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <!-- Link against the import library -->
